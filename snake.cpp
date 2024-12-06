@@ -53,22 +53,54 @@ std::vector<int> backgroundSetup(const int &nx, const int &ny)
 
 void add_snake(const std::vector<std::pair<int, int>> &snake, std::vector<int> &bg, int nx, int ny)
 {
-  // 👉️ Your code here 👈️
+  for (auto &c : snake) {
+    int x = c.first ;
+    int y = c.second;
+    int index = y*nx + x ;
+    bg[index] = 3;
+  }
 }
 
 void remove_snake(const std::vector<std::pair<int, int>> &snake, std::vector<int> &bg, int nx, int ny)
 {
-  // 👉️ Your code here 👈️
+  for (auto &c : snake) {
+    int x = c.first ;
+    int y = c.second;
+    int index = y*nx + x ;
+    bg[index] = 0;
+  }
 }
 
 std::array<int, 2> snake_movement(char key)
 {
-  // 👉️ Your code here 👈️
+  std::array<int, 2> dxdy = {0, 0};
+  if (key == 'z') {
+    dxdy = {0, -1};
+  }
+  else if (key == 'q') {
+    dxdy = {-1, 0};
+  }
+  else if (key == 's') {
+    dxdy = {0, 1};
+  }
+  else if (key == 'd') {
+    dxdy = {1, 0};
+  }
+  return dxdy;
 }
 
 bool verifyBorder(const std::vector<std::pair<int, int>> &snake, int nx, int ny)
 {
-  // 👉️ Your code here 👈️
+  std::pair<int, int> head = snake[0];
+  if ((head.first <= 0) | (head.first >= nx) | (head.second <= 0) | (head.second >= ny)) {
+    return false;
+  }
+  for (int i = 1; i < snake.size()-1; i++) {
+    if ((head.first == snake[i].first) & (head.second == snake[i].second)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 std::vector<std::pair<int, int>> setupSnake(int snake_len)
@@ -85,7 +117,15 @@ std::vector<std::pair<int, int>> setupSnake(int snake_len)
 
 void update_snake_coordinates(std::vector<std::pair<int, int>> &snake, bool eat, std::array<int, 2> dxdy)
 {
-  // 👉️ Your code here 👈️
+  int size = snake.size();
+  if (eat){
+    snake.push_back(snake[size-1]);
+  }
+  for (int i = size-1; i > 0; i--) {
+    snake[i] = snake[i-1];
+  }
+  snake[0].first += dxdy[0];
+  snake[0].second += dxdy[1];
 }
 
 void startGame(const int &lap, const int &nx, const int &ny, std::vector<std::pair<int, int>> &snake, std::vector<int> &bg)
@@ -109,7 +149,7 @@ void startGame(const int &lap, const int &nx, const int &ny, std::vector<std::pa
     bool out = verifyBorder(snake, nx, ny);
     if (out == false)
     {
-      std::cerr << "" << std::endl;
+      std::cerr << "💀💀💀 Game Over 💀💀💀" << std::endl;
       exit(1);
     }
     bool eat = internal::eatFood(food, snake);
