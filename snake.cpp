@@ -85,12 +85,9 @@ std::array<int, 2> snake_movement(char key)
   return dxdy;
 }
 
-bool verifyBorder(const std::vector<std::pair<int, int>> &snake, int nx, int ny)
+bool verifyBorder(std::vector<std::pair<int, int>> &snake, int nx, int ny)
 {
   std::pair<int, int> head = snake[0];
-  if ((head.first <= 0) | (head.first >= nx) | (head.second <= 0) | (head.second >= ny)) {
-    return false;
-  }
   for (int i = 1; i < snake.size()-1; i++) {
     if (head == snake[i]) {
       return false;
@@ -111,7 +108,7 @@ std::vector<std::pair<int, int>> setupSnake(int snake_len)
   return snake;
 }
 
-void update_snake_coordinates(std::vector<std::pair<int, int>> &snake, bool eat, std::array<int, 2> dxdy)
+void update_snake_coordinates(std::vector<std::pair<int, int>> &snake, bool eat, std::array<int, 2> dxdy, int nx, int ny)
 {
   int size = snake.size();
   if (eat){
@@ -121,7 +118,19 @@ void update_snake_coordinates(std::vector<std::pair<int, int>> &snake, bool eat,
     snake[i] = snake[i-1];
   }
   snake[0].first += dxdy[0];
+  if (snake[0].first <= 0) {
+    snake[0].first = nx - 2;
+  }
+  else if (snake[0].first >= nx - 1) {
+    snake[0].first = 1;
+  }
   snake[0].second += dxdy[1];
+  if (snake[0].second <= 0) {
+    snake[0].second = ny - 2;
+  }
+  else if (snake[0].second >= ny - 1) {
+    snake[0].second = 1;
+  }
 }
 
 void startGame(int &lap, const int &nx, const int &ny, std::vector<std::pair<int, int>> &snake, std::vector<int> &bg, const int &lapMin, const int &lapRate)
@@ -157,13 +166,13 @@ void startGame(int &lap, const int &nx, const int &ny, std::vector<std::pair<int
       internal::createFood(bg, food, nx, ny);
       score++;
     }
-    update_snake_coordinates(snake, eat, dxdy);
+    update_snake_coordinates(snake, eat, dxdy, nx, ny);
     if (lap > lapMin) {
       if (timer == lapRate) {
       lap = lap - 1;
       timer = 0;
     }
-    std::cout << lap << std::endl;
+    std::cout << "Actual lap : " << lap << std::endl;
     timer++;
     }
   }
