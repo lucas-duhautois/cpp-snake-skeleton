@@ -17,7 +17,7 @@ namespace internal
   const char *cmd_clear = "clear";
   void backgroundClear();
   void printFrame(const int &nx, const int &ny, const std::vector<int> &bg);
-  void createFood(std::vector<int> &bg, std::array<int, 2> &food, const int &nx, const int &ny);
+  void createFood(const std::vector<std::pair<int, int>> &snake, std::vector<int> &bg, std::array<int, 2> &food, const int &nx, const int &ny);
   bool eatFood(std::array<int, 2> &food, std::vector<std::pair<int, int>> &snake);
   // 💀💀💀💀💀💀💀💀 DON'T TOUCH THIS BLOCK 💀💀💀💀💀💀💀💀💀 ///
 }
@@ -140,7 +140,7 @@ void startGame(int &lap, const int &nx, const int &ny, std::vector<std::pair<int
   char key;
   std::array<int, 2> dxdy = {1, 0};
   std::array<int, 2> food = {0, 0};
-  internal::createFood(bg, food, nx, ny);
+  internal::createFood(snake, bg, food, nx, ny);
   while (true)
   {
     internal::frameSleep(lap);
@@ -163,7 +163,7 @@ void startGame(int &lap, const int &nx, const int &ny, std::vector<std::pair<int
     bool eat = internal::eatFood(food, snake);
     if (eat)
     {
-      internal::createFood(bg, food, nx, ny);
+      internal::createFood(snake, bg, food, nx, ny);
       score++;
     }
     update_snake_coordinates(snake, eat, dxdy, nx, ny);
@@ -267,12 +267,21 @@ namespace internal
     }
   }
 
-  void createFood(std::vector<int> &bg, std::array<int, 2> &food, const int &nx, const int &ny)
+  void createFood(const std::vector<std::pair<int, int>> &snake, std::vector<int> &bg, std::array<int, 2> &food, const int &nx, const int &ny)
   {
     if (food[0] == 0)
     {
-      food[0] = rand() % (nx - 2) + 2;
-      food[1] = rand() % (ny - 2) + 2;
+      bool test = true;
+      while (test) {
+        food[0] = rand() % (nx - 2) + 2;
+        food[1] = rand() % (ny - 2) + 2;
+        test = false;
+        for (auto &c : snake) {
+          if ((c.first == food[0]) & (c.second == food[1])) {
+            test = true;
+          }
+        }
+      }
       bg[food[1] * nx + food[0]] = 2;
     }
   }
